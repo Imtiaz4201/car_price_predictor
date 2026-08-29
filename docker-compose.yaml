@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  car-price-predictor:
+    build:
+      context: .
+      dockerfile: .Dockerfile
+    ports:
+      - "8050:8050"
+    container_name: dash_car_app
