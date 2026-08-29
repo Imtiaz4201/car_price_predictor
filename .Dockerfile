@@ -1,11 +1,12 @@
 FROM python:3.10-slim
 WORKDIR /app
 
-COPY requirements.txt .
+# Copy requirements from app/ requirements.txt and install dependencies
+COPY app/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy both code and saved_models
-COPY code/ ./code/
+# Copy application source code and models
+COPY app/code/ ./code/
 COPY saved_models/ ./saved_models/
 
 WORKDIR /app/code

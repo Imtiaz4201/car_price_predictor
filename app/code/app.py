@@ -7,13 +7,12 @@ import json,os
 from pathlib import Path
 
 # LOAD ASSETS 
-# app.py is inside /app/code/, so parent.parent = /app/
-BASE_DIR = Path(__file__)
-saved_data_path = Path(__file__).resolve().parent.parent.parent / 'saved_models'
+BASE_DIR = Path(__file__).resolve().parent
+saved_data_path = BASE_DIR.parent / 'saved_models'
 
 # Load defaults for fields NOT handled by the pipeline's ColumnTransformer
 # Pipeline handles: mileage, engine (median) | seats (most_frequent)
-# App  handle: brand, year, km_driven, max_power, fuel, seller_type, transmission, owner
+# App handles: brand, year, km_driven, max_power, fuel, seller_type, transmission, owner
 model = joblib.load(saved_data_path / 'xgb_best_model.pkl')
 with open(saved_data_path / 'imputation_defaults.json', 'r') as f:
     defaults = json.load(f)
