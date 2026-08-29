@@ -5,14 +5,16 @@ import numpy as np
 import joblib
 import json,os
 from pathlib import Path
+from dash.exceptions import PreventUpdate
 
 # LOAD ASSETS 
-BASE_DIR = Path(__file__).resolve().parent
-saved_data_path = BASE_DIR.parent / 'saved_models'
+CURRENT_DIR = Path(__file__).resolve().parent
 
-# Load defaults for fields NOT handled by the pipeline's ColumnTransformer
-# Pipeline handles: mileage, engine (median) | seats (most_frequent)
-# App handles: brand, year, km_driven, max_power, fuel, seller_type, transmission, owner
+local_saved_path = CURRENT_DIR.parent.parent / 'saved_models'
+docker_saved_path = CURRENT_DIR.parent / 'saved_models'
+
+saved_data_path = local_saved_path if local_saved_path.exists() else docker_saved_path
+
 model = joblib.load(saved_data_path / 'xgb_best_model.pkl')
 with open(saved_data_path / 'imputation_defaults.json', 'r') as f:
     defaults = json.load(f)
@@ -24,7 +26,7 @@ app.title = "Car Price Predictor"
 app.layout = html.Div(style={'maxWidth': '750px', 'margin': 'auto', 'padding': '20px', 'fontFamily': 'Segoe UI, sans-serif'}, children=[
     
     html.Div([
-        html.H1("🚗 Used Car Price Predictor", 
+        html.H1("Used Car Price Predictor", 
                 style={'color': '#1a1a2e', 'marginBottom': '8px'}),
         html.P("Instantly estimate the selling price of a used car using a machine learning model trained on thousands of real vehicle listings.", 
                style={'color': '#4a4a6a', 'fontSize': '16px', 'lineHeight': '1.5'})
@@ -184,8 +186,10 @@ app.layout = html.Div(style={'maxWidth': '750px', 'margin': 'auto', 'padding': '
     State('transmission', 'value'),
     State('owner', 'value')
 )
+
 def predict_price(n_clicks, brand, year, km_driven, mileage, engine, max_power, seats,
                   fuel, seller_type, transmission, owner):
+
     
     if n_clicks == 0:
         return ""
@@ -242,6 +246,10 @@ def predict_price(n_clicks, brand, year, km_driven, mileage, engine, max_power, 
             html.P(str(e), style={'color': 'gray'})
         ])
 
-#  RUN
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0', port=8050)
+    app.run(
+        host='0.0.0.0',
+        port=8050,
+        debug=False,
+        dev_tools_props_check=False
+    )
