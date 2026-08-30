@@ -77,7 +77,7 @@ Docker is the recommended way to run the application because it provides a consi
 Navigate to the application directory:
 
 ```bash
-cd app
+cd car_price_predictor
 ```
 
 Build the Docker image and start the container:
@@ -127,6 +127,8 @@ The model expects the following **11 features**:
 | `seller_type` | Type of seller |
 | `transmission` | Transmission type |
 | `owner` | Previous ownership information |
+
+![no image!](demo.png)
 
 ---
 
