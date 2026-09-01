@@ -4,6 +4,7 @@ A web-based **used car price prediction application** built with **Dash** and **
 
 The application supports **partial inputs**. When users leave fields blank, missing values are automatically imputed using statistics derived from the training data or handled internally by the model pipeline.
 
+Docker Hub: : https://hub.docker.com/repository/docker/imtiaz3445/car_price_predictor-app/general
 ---
 
 ## 📁 Application Structure
