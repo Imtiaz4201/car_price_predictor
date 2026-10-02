@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: app/code   # Model.py, requirements.txt, tests/ live here[cite: 3]
+        working-directory: app/code   # Model.py, tests/ live here
 
     steps:
       - name: Checkout code
@@ -32,7 +32,7 @@ jobs:
         run: pytest tests/ -v
 
   deploy:
-    needs: test                       # Only runs if unit tests pass[cite: 3]
+    needs: test                       # Only runs if unit tests pass
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
@@ -51,21 +51,21 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: .                  # Dockerfile is at repo root[cite: 3]
+          context: .                  # Dockerfile is at repo root
           push: true
-          tags: imtiaz3445/car-price-app-v2:latest
+          tags: imtiaz3445/car-price-app-v2:v3
 
       - name: Deploy to VM via SSH (via Bazooka Jump Host)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VM_HOST }}            # ml.brain.cs.ait.ac.th
-          username: ${{ secrets.VM_USER }}
+          username: ${{ secrets.VM_USER }}        # st126685
           key: ${{ secrets.VM_SSH_KEY }}
-          proxy_host: bazooka.cs.ait.ac.th       # Jump host server
+          proxy_host: bazooka.cs.ait.ac.th        # Jump host server
           proxy_username: ${{ secrets.VM_USER }}
           proxy_key: ${{ secrets.VM_SSH_KEY }}
           script: |
-            docker pull imtiaz3445/car-price-app-v2:latest
+            docker pull imtiaz3445/car-price-app-v2:v3
             docker stop car-price-app || true
             docker rm car-price-app || true
-            docker run -d --name car-price-app -p 8050:8050 imtiaz3445/car-price-app-v2:latest
+            docker run -d --name car-price-app -p 8050:8050 imtiaz3445/car-price-app-v2:v3
