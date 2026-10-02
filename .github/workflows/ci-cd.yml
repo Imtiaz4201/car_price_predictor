@@ -62,20 +62,27 @@ jobs:
           VM_HOST: ${{ secrets.VM_HOST }}
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/id_ed25519
+
+          # Write key preserving raw line breaks
+          printf "%s\n" "$SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          # Configure SSH to bypass host key verification globally for both jump host and target
+          # Validate key structure
+          ssh-keygen -lf ~/.ssh/id_ed25519
+
+          # Force SSH to use id_ed25519 for ALL hosts (bazooka + ml.brain)
           cat << 'EOF' > ~/.ssh/config
           Host *
             StrictHostKeyChecking no
             UserKnownHostsFile /dev/null
+            IdentityFile ~/.ssh/id_ed25519
+            IdentitiesOnly yes
             LogLevel ERROR
           EOF
           chmod 600 ~/.ssh/config
 
-          # Execute remote deployment via jump host (-T disables pseudo-terminal allocation)
-          ssh -T -i ~/.ssh/id_ed25519 -J ${VM_USER}@bazooka.cs.ait.ac.th ${VM_USER}@${VM_HOST} << 'EOF'
+          # Connect via jump host (-T disables pseudo-terminal allocation)
+          ssh -T -J ${VM_USER}@bazooka.cs.ait.ac.th ${VM_USER}@${VM_HOST} << 'EOF'
             docker pull imtiaz3445/car-price-app-v2:v3
             docker stop car-price-app || true
             docker rm car-price-app || true
