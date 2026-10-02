@@ -164,6 +164,7 @@ class LogisticRegression(object):
         # final validation accuracy
         self.val_acc = None
         self.final_val_loss = None
+        y_val_true = y_val
         if X_val is not None and y_val is not None:
             if y_val.ndim > 1:
                 y_val_true = np.argmax(y_val, axis=1)
