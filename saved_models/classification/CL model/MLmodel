@@ -1,0 +1,19 @@
+artifact_path: /Users/imtiaz/Documents/A3/mlruns/1/models/m-cb13e34b259d40be836d93e6ee16b4ca/artifacts
+flavors:
+  python_function:
+    cloudpickle_version: 3.1.2
+    code: null
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.pyfunc.model
+    python_model: python_model.pkl
+    python_version: 3.10.18
+    streamable: false
+mlflow_version: 3.16.0
+model_id: m-cb13e34b259d40be836d93e6ee16b4ca
+model_size_bytes: 76743
+model_uuid: m-cb13e34b259d40be836d93e6ee16b4ca
+prompts: null
+run_id: ff959101168949e3941a5008bc85b557
+utc_time_created: '2026-10-02 09:33:39.074449'
