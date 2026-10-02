@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: app/code   # Model.py, requirements.txt, tests/ live here
+        working-directory: app/code   # Model.py, requirements.txt, tests/ live here[cite: 3]
 
     steps:
       - name: Checkout code
@@ -32,7 +32,7 @@ jobs:
         run: pytest tests/ -v
 
   deploy:
-    needs: test                       # Only runs if the test job succeeds[cite: 3]
+    needs: test                       # Only runs if unit tests pass[cite: 3]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
@@ -55,12 +55,15 @@ jobs:
           push: true
           tags: imtiaz3445/car-price-app-v2:latest
 
-      - name: Deploy to VM via SSH
+      - name: Deploy to VM via SSH (via Bazooka Jump Host)
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.VM_HOST }}
+          host: ${{ secrets.VM_HOST }}            # ml.brain.cs.ait.ac.th
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
+          proxy_host: bazooka.cs.ait.ac.th       # Jump host server
+          proxy_username: ${{ secrets.VM_USER }}
+          proxy_key: ${{ secrets.VM_SSH_KEY }}
           script: |
             docker pull imtiaz3445/car-price-app-v2:latest
             docker stop car-price-app || true
