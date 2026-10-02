@@ -55,17 +55,20 @@ jobs:
           push: true
           tags: imtiaz3445/car-price-app-v2:v3
 
-      - name: Deploy to VM via SSH (via Bazooka Jump Host)
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VM_HOST }}            # ml.brain.cs.ait.ac.th
-          username: ${{ secrets.VM_USER }}        # st126685
-          key: ${{ secrets.VM_SSH_KEY }}
-          proxy_host: bazooka.cs.ait.ac.th        # Jump host server
-          proxy_username: ${{ secrets.VM_USER }}
-          proxy_key: ${{ secrets.VM_SSH_KEY }}
-          script: |
+      - name: Deploy to VM via Native SSH Jump Host
+        env:
+          SSH_KEY: ${{ secrets.VM_SSH_KEY }}
+          VM_USER: ${{ secrets.VM_USER }}
+          VM_HOST: ${{ secrets.VM_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          
+          # Native OpenSSH with Bazooka jump host routing
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -J ${VM_USER}@bazooka.cs.ait.ac.th ${VM_USER}@${VM_HOST} << 'EOF'
             docker pull imtiaz3445/car-price-app-v2:v3
             docker stop car-price-app || true
             docker rm car-price-app || true
             docker run -d --name car-price-app -p 8050:8050 imtiaz3445/car-price-app-v2:v3
+          EOF
