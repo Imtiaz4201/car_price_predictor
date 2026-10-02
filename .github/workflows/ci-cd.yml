@@ -56,19 +56,28 @@ jobs:
           tags: imtiaz3445/car-price-app-v2:v3
 
       - name: Deploy to VM via Native SSH Jump Host
-        env:
-          SSH_KEY: ${{ secrets.VM_SSH_KEY }}
-          VM_USER: ${{ secrets.VM_USER }}
-          VM_HOST: ${{ secrets.VM_HOST }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          
-          # Native OpenSSH with Bazooka jump host routing
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 -J ${VM_USER}@bazooka.cs.ait.ac.th ${VM_USER}@${VM_HOST} << 'EOF'
-            docker pull imtiaz3445/car-price-app-v2:v3
-            docker stop car-price-app || true
-            docker rm car-price-app || true
-            docker run -d --name car-price-app -p 8050:8050 imtiaz3445/car-price-app-v2:v3
-          EOF
+              env:
+                SSH_KEY: ${{ secrets.VM_SSH_KEY }}
+                VM_USER: ${{ secrets.VM_USER }}
+                VM_HOST: ${{ secrets.VM_HOST }}
+              run: |
+                mkdir -p ~/.ssh
+                echo "$SSH_KEY" > ~/.ssh/id_ed25519
+                chmod 600 ~/.ssh/id_ed25519
+
+                # Configure SSH to bypass host key verification globally (covers both bazooka and ml.brain)
+                cat << 'EOF' > ~/.ssh/config
+                Host *
+                  StrictHostKeyChecking no
+                  UserKnownHostsFile /dev/null
+                  LogLevel ERROR
+                EOF
+                chmod 600 ~/.ssh/config
+
+                # Connect via jump host (-T silences the pseudo-terminal allocation warning)
+                ssh -T -i ~/.ssh/id_ed25519 -J ${VM_USER}@bazooka.cs.ait.ac.th ${VM_USER}@${VM_HOST} << 'EOF'
+                  docker pull imtiaz3445/car-price-app-v2:v3
+                  docker stop car-price-app || true
+                  docker rm car-price-app || true
+                  docker run -d --name car-price-app -p 8050:8050 imtiaz3445/car-price-app-v2:v3
+                EOF
