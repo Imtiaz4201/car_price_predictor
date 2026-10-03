@@ -1,7 +1,5 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: .Dockerfile
+    image: imtiaz3445/car-price-app-v2:latest
     ports:
       - "8050:8050"
